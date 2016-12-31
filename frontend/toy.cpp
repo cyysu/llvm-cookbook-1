@@ -63,7 +63,7 @@ static int get_token() {
 }
 
 /**
- * 抽象语法树
+ * 抽象语法树定义
  */
 
 class BaseAST {
@@ -114,3 +114,59 @@ public:
     FunctionCallAST (const std::string &callee, std::vector<BaseAST*> &args) :
     Function_Callee(callee), Function_Arguments(args) {}
 };
+
+/**
+ * 语法分析器
+ */
+static int Current_token;
+
+static void next_token() {
+  Current_token = get_token();
+}
+
+static BaseAST* base_Parser() {
+  switch (Current_token) {
+    default: return 0;
+    case IDENTIFIER_TOKEN: return identifier_parser();
+    case NUMERIC_TOKEN: return numeric_parser();
+    case '(': return paran_parser();
+  }
+}
+
+/**
+ * 解析简单表达式
+ */
+static BaseAST *numeric_parser() {
+  BaseAST *Result = new NumericAST(Numeric_Val);
+  next_token();
+  return Result;
+}
+
+static BaseAST* identifier_parser() {
+  std::string IdName = Identifier_string;
+
+  next_token();
+
+  if (Current_token != '(')
+  return new VariableAST(IdName);
+
+  next_token();
+
+  std::vector<BaseAST*> Args;
+  if (Current_token != ')') {
+    while (1) {
+      BaseAST* Arg = expression_parser();
+      if (!Arg) return 0;
+      Args.push_back(Arg);
+
+      if (Current_token == ')') break;
+
+      if (Current_token != ',')
+      return 0;
+      next_token();
+    }
+  }
+  next_token();
+
+  return new FunctionCallAST(IdName, Args);
+}
