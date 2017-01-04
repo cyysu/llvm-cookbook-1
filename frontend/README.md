@@ -1,4 +1,4 @@
-编译toy：`clang++ -O3 toy.cpp \`llvm-config --cxxflags --ldflags --system-libs --libs core\` -o toy`
+编译toy：```clang++ -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy```
 
 用toy前端处理`example`：`./toy example`
 
