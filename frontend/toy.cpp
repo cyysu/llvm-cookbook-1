@@ -316,6 +316,16 @@ int main(int argc, char const *argv[]) {
     }
     next_token();
     Module_Ob = new Module("my compiler", Context);
+
+    // 优化器
+    FunctionPassManager My_FP(TheModule);
+    My_FP.add(createBasicAliasAnalysisPass());
+    My_FP.add(createInstructionCombiningPass());
+    My_FP.add(createReassociatePass());
+    My_FP.add(createGVNPass());
+    My_FP.doInitialization();
+
+    Global_FP = &My_FP;
     Driver();
     Module_Ob->dump();
     return 0;
@@ -395,8 +405,15 @@ Function *FunctionDefnAST::Codegen() {
     if (Value *RetVal = Body->Codegen()) {
         Builder.CreateRet(RetVal);
         verifyFunction(*TheFunction);
+        Global_FP->run(*TheFunction);   // 优化器
         return TheFunction;
     }
     TheFunction->eraseFromParent();
     return 0;
 }
+
+
+/*******************************************************************
+ * 增加IR优化
+ */
+static FunctionPassManager *Global_FP;
