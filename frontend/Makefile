@@ -1,6 +1,7 @@
 all:
-	clang++ -g -O3 toy.cpp -o toy -std=c++11
-
+	clang++ -g -O3 toy.cpp \
+	`llvm-config --cxxflags --ldflags --system-libs --libs core` \
+	 -o toy
 .PHONY: clean
 clean:
 	rm toy
